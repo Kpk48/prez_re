@@ -29,9 +29,20 @@ export default function RegisterPage() {
             },
         });
 
-        setLoading(false);
-        if (error) setError(error.message);
-        else window.location.href = "/dashboard";
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+            return;
+        }
+
+        // Redirect based on selected role
+        if (role === "student") {
+            window.location.href = "/student/profile";
+        } else if (role === "company") {
+            window.location.href = "/company/profile";
+        } else {
+            window.location.href = "/dashboard";
+        }
     };
 
     return (

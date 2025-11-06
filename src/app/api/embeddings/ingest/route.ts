@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
     if (!owner_type || !owner_id || !content) {
       return NextResponse.json({ error: "owner_type, owner_id, content required" }, { status: 400 });
     }
+    
+    // Check if GEMINI_API_KEY is configured
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ 
+        error: "GEMINI_API_KEY not configured. Add it to .env.local to enable AI features." 
+      }, { status: 503 });
+    }
+    
     const chunks = chunkText(content);
     const vectors = await embedText(chunks);
     const admin = getSupabaseAdmin();
@@ -32,6 +40,9 @@ export async function POST(req: NextRequest) {
     if (error) throw error;
     return NextResponse.json({ inserted: rows.length });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || "failed" }, { status: 500 });
+    console.error("Embeddings ingest error:", e);
+    return NextResponse.json({ 
+      error: e.message || "Failed to generate embeddings" 
+    }, { status: 500 });
   }
 }

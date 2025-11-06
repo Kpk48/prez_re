@@ -16,9 +16,27 @@ export default function LoginPage() {
         setError(null);
         const supabase = getSupabaseBrowser();
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        setLoading(false);
-        if (error) setError(error.message);
-        else window.location.href = "/dashboard";
+        
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+            return;
+        }
+
+        // Fetch user role and redirect to appropriate page
+        const res = await fetch("/api/me");
+        const data = await res.json();
+        const role = data?.profile?.role;
+
+        if (role === "student") {
+            window.location.href = "/student/profile";
+        } else if (role === "company") {
+            window.location.href = "/company/profile";
+        } else if (role === "admin") {
+            window.location.href = "/admin/analytics";
+        } else {
+            window.location.href = "/dashboard";
+        }
     };
 
     return (

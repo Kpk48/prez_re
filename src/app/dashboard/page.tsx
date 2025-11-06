@@ -1,7 +1,8 @@
-import { getSupabaseServer } from "@/lib/supabaseServer";
-import { ensureProfile } from "@/lib/profile";
+"use client";
+import { useEffect, useState } from "react";
+import { getSupabaseBrowser } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { Card } from "@/components/ui";
+import { Card, Button, Input, Label } from "@/components/ui";
 import {
     User2,
     BriefcaseBusiness,
@@ -10,15 +11,80 @@ import {
     Lightbulb,
     Sparkles,
     CheckCircle2,
+    LockKeyhole,
+    Loader2,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-    const supabase = await getSupabaseServer();
-    const { data: userResp } = await supabase.auth.getUser();
-    const user = userResp.user;
+export default function DashboardPage() {
+    const [user, setUser] = useState<any>(null);
+    const [profile, setProfile] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    // admin login form state
+    const [adminEmail, setAdminEmail] = useState("");
+    const [adminPassword, setAdminPassword] = useState("");
+    const [adminLoading, setAdminLoading] = useState(false);
+
+    useEffect(() => {
+        const supabase = getSupabaseBrowser();
+        async function loadUser() {
+            const { data } = await supabase.auth.getUser();
+            const user = data.user;
+            setUser(user);
+
+            if (user) {
+                const res = await fetch("/api/me");
+                const j = await res.json();
+                setProfile(j.profile ?? null);
+            }
+            setLoading(false);
+        }
+        loadUser();
+    }, []);
+
+    // Inline admin login
+    const onAdminLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAdminLoading(true);
+        setError(null);
+
+        const supabase = getSupabaseBrowser();
+        const { error } = await supabase.auth.signInWithPassword({
+            email: adminEmail,
+            password: adminPassword,
+        });
+
+        if (error) {
+            setError("Invalid admin credentials");
+            setAdminLoading(false);
+            return;
+        }
+
+        // verify admin role
+        const res = await fetch("/api/me");
+        const data = await res.json();
+        if (data?.profile?.role !== "admin") {
+            setError("Access denied: not an admin");
+            await supabase.auth.signOut();
+            setAdminLoading(false);
+            return;
+        }
+
+        window.location.href = "/admin/analytics";
+    };
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-black text-white">
+                <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+        );
+    }
+
+    // user not logged in
     if (!user) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-purple-950 via-black to-black px-6 text-white">
@@ -40,13 +106,55 @@ export default async function DashboardPage() {
                             Register
                         </Link>.
                     </p>
+
+                    {/* 🔐 Inline Admin Login */}
+                    <div className="mt-8">
+                        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <LockKeyhole className="h-5 w-5 text-purple-400" /> Admin Login
+                        </h2>
+                        <form onSubmit={onAdminLogin} className="space-y-3">
+                            <div>
+                                <Label>Email</Label>
+                                <Input
+                                    type="email"
+                                    required
+                                    value={adminEmail}
+                                    onChange={(e) => setAdminEmail(e.target.value)}
+                                    placeholder="admin@example.com"
+                                />
+                            </div>
+                            <div>
+                                <Label>Password</Label>
+                                <Input
+                                    type="password"
+                                    required
+                                    value={adminPassword}
+                                    onChange={(e) => setAdminPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                            {error && (
+                                <p className="text-sm text-red-400 text-center">{error}</p>
+                            )}
+                            <Button
+                                type="submit"
+                                loading={adminLoading}
+                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            >
+                                {adminLoading ? "Logging in…" : "Login as Admin"}
+                            </Button>
+                        </form>
+                    </div>
                 </Card>
             </div>
         );
     }
 
-    const profile = await ensureProfile();
-    const role = (profile?.role || "student") as "student" | "company" | "admin";
+    // ✅ Normal dashboard for all roles
+    const role = (profile?.role || "student") as
+        | "student"
+        | "company"
+        | "admin";
 
     const allTiles = [
         {
@@ -82,7 +190,7 @@ export default async function DashboardPage() {
                 { href: "/admin/tools", label: "RAG Tools" },
             ],
         },
-    ] as const;
+    ];
 
     const visibleTiles = allTiles.filter((t) => {
         if (role === "admin") return true;
@@ -105,26 +213,13 @@ export default async function DashboardPage() {
             icon: Sparkles,
             tip: "AI uses your top 3 skills and recent activity to recommend the best internships for your profile.",
         },
-        {
-            title: "Productivity Tip",
-            icon: Lightbulb,
-            tip: "Focus on consistency, not intensity. A 1-hour learning habit daily beats a 10-hour binge session weekly.",
-        },
-        {
-            title: "Networking Hack",
-            icon: CheckCircle2,
-            tip: "Message recruiters directly after applying — it increases your visibility and response rate by 50%.",
-        },
     ];
-
-    const randomTips = tips.sort(() => 0.5 - Math.random()).slice(0, 3);
 
     return (
         <div className="relative min-h-screen bg-gradient-to-br from-purple-950 via-black to-black px-6 py-12 text-white">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.2),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(219,39,119,0.15),transparent_70%)]" />
 
             <div className="relative z-10 mx-auto w-full max-w-7xl space-y-12">
-                {/* Header Section */}
                 <section className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-2xl p-8 shadow-2xl">
                     <h1 className="text-3xl font-semibold">
                         Welcome back,{" "}
@@ -137,7 +232,6 @@ export default async function DashboardPage() {
                     </p>
                 </section>
 
-                {/* Role-Based Cards */}
                 <section>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {visibleTiles.map((t) => {
@@ -177,9 +271,8 @@ export default async function DashboardPage() {
                     </div>
                 </section>
 
-                {/* Quick Tips Section */}
                 <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {randomTips.map((t, i) => {
+                    {tips.map((t, i) => {
                         const Icon = t.icon;
                         return (
                             <div
