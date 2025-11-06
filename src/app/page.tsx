@@ -1,65 +1,36 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Briefcase, GraduationCap, Shield } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative mx-auto max-w-7xl py-24">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-700 via-purple-800 to-black p-12 text-white shadow-xl">
+        <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-purple-500/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" />
+        <h1 className="mb-4 text-5xl font-semibold leading-tight tracking-tight">SkillSync</h1>
+        <p className="mb-10 max-w-2xl text-zinc-200">An intelligent internship platform that uses Retrieval-Augmented Generation to match students to internships and companies to candidates, powered by Supabase and Next.js.</p>
+        <div className="flex flex-wrap gap-4">
+          <Link href="/register" className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-black shadow hover:bg-zinc-100">Get Started</Link>
+          <Link href="/dashboard" className="rounded-xl border border-white/30 px-5 py-3 text-sm font-medium backdrop-blur hover:bg-white/10">Go to Dashboard</Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+      <section className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="rounded-2xl border border-zinc-200/60 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-900/60">
+          <div className="mb-3 inline-flex rounded-lg bg-purple-600/10 p-2 text-purple-400"><GraduationCap className="h-5 w-5" /></div>
+          <h3 className="mb-2 text-lg font-semibold">Students</h3>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Build your profile, upload resume, and get AI recommendations for best-fit internships.</p>
         </div>
-      </main>
+        <div className="rounded-2xl border border-zinc-200/60 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-900/60">
+          <div className="mb-3 inline-flex rounded-lg bg-purple-600/10 p-2 text-purple-400"><Briefcase className="h-5 w-5" /></div>
+          <h3 className="mb-2 text-lg font-semibold">Companies</h3>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Post internships and instantly see matched student recommendations.</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-200/60 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-900/60">
+          <div className="mb-3 inline-flex rounded-lg bg-purple-600/10 p-2 text-purple-400"><Shield className="h-5 w-5" /></div>
+          <h3 className="mb-2 text-lg font-semibold">Admin</h3>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Manage users, listings, and monitor analytics and match quality.</p>
+        </div>
+      </section>
     </div>
   );
 }
