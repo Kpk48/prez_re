@@ -145,8 +145,9 @@ ${conversationHistory ? `\n\nRECENT CONVERSATION:\n${conversationHistory}` : ""}
 USER'S MESSAGE: ${message}
 
 Respond as Carlos:`;
-
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+const apiUrl =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
+    
     
     const response = await fetch(apiUrl, {
       method: 'POST',
